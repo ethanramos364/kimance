@@ -81,5 +81,6 @@ export async function updatePassword(formData: FormData) {
     return { error: error.message }
   }
 
+  revalidatePath('/', 'layout')
   redirect('/dashboard')
 }

@@ -8,14 +8,14 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -27,14 +27,16 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Refresh session if expired
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // IMPORTANT: Do not run code between createServerClient and
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out.
+
+  const { data } = await supabase.auth.getClaims()
+  const user = data?.claims
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/account', '/settings']
-  const isProtectedPath = protectedPaths.some(path => 
+  const protectedPaths = ['/dashboard', '/account', '/settings', '/wallet']
+  const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 
@@ -47,7 +49,7 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   const authPaths = ['/login', '/signup']
-  const isAuthPath = authPaths.some(path => 
+  const isAuthPath = authPaths.some(path =>
     request.nextUrl.pathname === path
   )
 

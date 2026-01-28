@@ -1,6 +1,6 @@
 # Kimance Frontend - Authentication System
 
-A complete authentication system for the Kimance Global Money Transfer platform built with Next.js 14 and Supabase.
+A complete authentication system for the Kimance Global Money Transfer platform built with Next.js 15 and Supabase.
 
 ## Features
 
@@ -8,10 +8,9 @@ A complete authentication system for the Kimance Global Money Transfer platform 
 - ✅ Email/Password Login
 - ✅ Password Reset Flow
 - ✅ Protected Routes (Dashboard)
-- ✅ Session Management
+- ✅ Session Management (via Proxy)
 - ✅ Auto-redirect (logged in users → dashboard, guests → login)
 - ✅ Email Verification Support
-- ✅ Clean, Fintech-style UI
 
 ## Quick Start
 
@@ -32,7 +31,7 @@ npm install
 3. Fill in your Supabase credentials:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key-here
    NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
@@ -81,8 +80,8 @@ frontend/
 │   └── supabase/
 │       ├── client.ts        # Browser client
 │       ├── server.ts        # Server client
-│       └── middleware.ts    # Session refresh
-├── middleware.ts            # Route protection
+│       └── proxy.ts         # Session refresh logic
+├── proxy.ts                 # Next.js 15 proxy (replaces middleware)
 └── package.json
 ```
 
@@ -116,7 +115,7 @@ For deployment to `secure.kimance.com`:
 
 ## Adding More Protected Routes
 
-Edit `lib/supabase/middleware.ts` to add more protected paths:
+Edit `lib/supabase/proxy.ts` to add more protected paths:
 
 ```typescript
 const protectedPaths = ['/dashboard', '/account', '/settings', '/wallet']
@@ -124,7 +123,8 @@ const protectedPaths = ['/dashboard', '/account', '/settings', '/wallet']
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Auth**: Supabase Auth
+- **Framework**: Next.js 15 (App Router)
+- **Auth**: Supabase Auth (@supabase/ssr)
 - **Styling**: Tailwind CSS
 - **Language**: TypeScript
+- **React**: v19
